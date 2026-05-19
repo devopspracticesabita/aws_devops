@@ -1,0 +1,48 @@
+{{- if .Values.configMap.create -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ui.configMapName" . }}
+data:
+  {{- if .Values.app.theme }}
+  RETAIL_UI_THEME: {{ .Values.app.theme | quote }}
+  {{- end }}
+  {{- if .Values.app.chat.enabled }}
+  RETAIL_UI_CHAT_ENABLED: {{ .Values.app.chat.enabled | quote }}
+  RETAIL_UI_CHAT_PROVIDER: {{ .Values.app.chat.provider | quote }}
+  RETAIL_UI_CHAT_MODEL: {{ .Values.app.chat.model | quote }}
+  {{- if .Values.app.chat.temperature }}
+  RETAIL_UI_CHAT_TEMPERATURE: {{ .Values.app.chat.temperature | quote }}
+  {{- end }}
+  {{- if .Values.app.chat.maxTokens }}
+  RETAIL_UI_CHAT_MAX_TOKENS: {{ .Values.app.chat.maxTokens | quote }}
+  {{- end }}
+  {{- if .Values.app.chat.prompt }}
+  RETAIL_UI_CHAT_PROMPT: {{ .Values.app.chat.prompt | quote }}
+  {{- end }}
+  {{- if (eq "openai" .Values.app.chat.provider) }}
+  RETAIL_UI_CHAT_OPENAI_BASE_URL: {{ .Values.app.chat.openai.baseUrl | quote }}
+  {{- if .Values.app.chat.openai.apiKey }}
+  RETAIL_UI_CHAT_OPENAI_API_KEY: {{ .Values.app.chat.openai.apiKey | quote }}
+  {{- end }}
+  {{- end }}
+  {{- if (eq "bedrock" .Values.app.chat.provider) }}
+  RETAIL_UI_CHAT_BEDROCK_REGION: {{ .Values.app.chat.bedrock.region | quote }}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.app.endpoints.catalog }}
+  RETAIL_UI_ENDPOINTS_CATALOG: {{ .Values.app.endpoints.catalog | quote }}
+  {{- end }}
+  {{- if .Values.app.endpoints.carts }}
+  RETAIL_UI_ENDPOINTS_CARTS: {{ .Values.app.endpoints.carts | quote }}
+  {{- end }}
+  {{- if .Values.app.endpoints.checkout }}
+  RETAIL_UI_ENDPOINTS_CHECKOUT: {{ .Values.app.endpoints.checkout | quote }}
+  {{- end }}
+  {{- if .Values.app.endpoints.orders }}
+  RETAIL_UI_ENDPOINTS_ORDERS: {{ .Values.app.endpoints.orders | quote }}
+  {{- end }}
+  {{- if .Values.app.endpoints.assets }}
+  RETAIL_UI_ENDPOINTS_ASSETS: {{ .Values.app.endpoints.assets | quote }}
+  {{- end }}
+{{- end }}

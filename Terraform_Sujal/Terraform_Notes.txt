@@ -1,0 +1,7 @@
+Variable Files preference in Terraform :::
+
+First Priority ::: *.tfvars [dev.tfvars]
+Second Priority ::: *auto.tfvars [Example: dev.auto.tfvars	]
+Third Priority ::: terraform.tfvars
+Fourth Priority ::: Environment Variables
+Last Priority ::: variable.tf

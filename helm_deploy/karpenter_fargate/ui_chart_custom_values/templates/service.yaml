@@ -1,0 +1,21 @@
+{{- range .Values.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }} # Uses the name 'ui' or 'ui-np' from values.yaml
+  labels:
+    {{- include "ui.labels" $ | nindent 4 }}
+spec:
+  type: {{ .type }}
+  ports:
+    - port: {{ .port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+      {{- if and (eq .type "NodePort") .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+  selector:
+    {{- include "ui.selectorLabels" $ | nindent 4 }}
+{{- end }}

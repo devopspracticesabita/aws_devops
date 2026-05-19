@@ -1,0 +1,135 @@
+# Default values for ui.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 3
+
+image:
+  repository: public.ecr.aws/aws-containers/retail-store-sample-ui
+  pullPolicy: IfNotPresent
+  tag: "1.2.4" # Set this to match your deployment.yaml
+
+# Service Account
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # The name of the service account to use.
+  name: "ui"
+  # Annotations to add to the service account
+  annotations: {}
+  # If not set and create is true, a name is generated using the fullname template
+
+configMap:
+  create: true
+  name: "ui" # Force the name to match your static k8s yaml
+
+# Application Specifics (ConfigMap)
+app:
+  endpoints:
+    catalog: http://catalog
+    carts: http://carts
+    checkout: http://checkout
+    orders: http://orders
+  chat:
+    enabled: false
+
+metrics:
+  enabled: true
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/actuator/prometheus"
+
+# Resources (Matching your deployment.yaml)
+resources:
+  limits:
+    cpu: 250m
+    memory: 512Mi
+  requests:
+    cpu: 128m
+    memory: 512Mi
+
+# Service (ClusterIP for internal, but Ingress points to it)
+services:
+  - name: ui
+    type: ClusterIP
+    port: 80
+  - name: ui-np
+    type: NodePort
+    port: 80
+
+# Ingress (ALB Controller Settings)
+ingress:
+  enabled: true
+  className: "alb"
+  annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: retail-store-http-instance-mode
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: instance
+    alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
+    alb.ingress.kubernetes.io/healthcheck-port: traffic-port
+    alb.ingress.kubernetes.io/healthcheck-path: /actuator/health/readiness
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '15'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/success-codes: '200'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+    external-dns.alpha.kubernetes.io/hostname: catalogservicesuj.com
+  hosts:
+    - hosts: [] # Making this an empty list will trigger the "else" block for a global rule
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: ui-np
+              port:
+                number: 80
+
+
+# Security Contexts
+podSecurityContext:
+  fsGroup: 1000
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+    add:
+      - NET_BIND_SERVICE
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  port: 80
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: karpenter.sh/capacity-type
+              operator: In
+              values: ["on-demand"]
+
+# New Topology Spread Constraints
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: "topology.kubernetes.io/zone"
+    whenUnsatisfiable: DoNotSchedule
+
+pdb:
+  enabled: true
+  minAvailable: 2
+
+releaseInfo:
+  enabled: true
+

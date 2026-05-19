@@ -1,0 +1,8 @@
+{
+  "MYSQL_USER": "mydbadmin",
+  "MYSQL_PASSWORD": "mypassword123",
+  "db_name": "catalogdb",
+  "postgres_db_name": "catalogpostgresdb",
+  "POSTGRES_USER": "mypostgresdbadmin",
+  "POSTGRES_PASSWORD": "mypassword321"
+}

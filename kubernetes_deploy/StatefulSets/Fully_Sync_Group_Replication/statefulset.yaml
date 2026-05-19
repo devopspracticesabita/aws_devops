@@ -1,0 +1,217 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: catalog-mysql
+  labels:
+    app.kubernetes.io/name: catalog
+    app.kubernetes.io/instance: catalog
+    app.kubernetes.io/component: mysql
+    app.kubernetes.io/owner: retail-store-sample
+spec:
+  replicas: 3
+  serviceName: catalog-mysql
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: catalog
+      app.kubernetes.io/instance: catalog
+      app.kubernetes.io/component: mysql
+      app.kubernetes.io/owner: retail-store-sample
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: catalog
+        app.kubernetes.io/instance: catalog
+        app.kubernetes.io/component: mysql
+        app.kubernetes.io/owner: retail-store-sample
+    spec:
+      serviceAccountName: aws-cli-sa
+      initContainers:
+      - name: init-mysql
+        #image: "public.ecr.aws/docker/library/mysql:8.0"
+        image: "public.ecr.aws/docker/library/mysql:8.0.34"
+        securityContext:
+          runAsUser: 0
+        command:
+        - bash
+        - "-c"
+        - |
+          set -ex
+          # 1. Wipe the disk completely
+          find /var/lib/mysql -mindepth 1 -delete
+          
+          # 2. Create the password script OUTSIDE the data dir
+          echo "ALTER USER 'root'@'localhost' IDENTIFIED BY 'my-secret-pw';" > /tmp/setup.sql
+          echo "CREATE USER 'root'@'127.0.0.1' IDENTIFIED BY 'my-secret-pw';" >> /tmp/setup.sql
+          echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'127.0.0.1' WITH GRANT OPTION;" >> /tmp/setup.sql
+          echo "FLUSH PRIVILEGES;" >> /tmp/setup.sql
+          chmod 644 /tmp/setup.sql
+          
+          # 3. Initialize (Directory is now truly empty)
+          mysqld --initialize-insecure --user=mysql --datadir=/var/lib/mysql --init-file=/tmp/setup.sql
+          
+          # 4. Handle permissions and server-id logic
+          chown -R 999:999 /var/lib/mysql
+          [[ "$HOSTNAME" =~ -([0-9]+)$ ]] || exit 1
+          ordinal=${BASH_REMATCH[1]}
+          echo "[mysqld]" > /mnt/conf.d/server-id.cnf
+          echo "server-id=$((100 + ordinal))" >> /mnt/conf.d/server-id.cnf
+          echo "group_replication_local_address=\"$HOSTNAME.catalog-mysql:33061\"" >> /mnt/conf.d/server-id.cnf
+        volumeMounts:
+        - name: conf
+          mountPath: /mnt/conf.d
+        - name: data-ebs
+          mountPath: /var/lib/mysql
+      containers:
+        - name: mysql
+          #image: "public.ecr.aws/docker/library/mysql:8.0"
+          image: "public.ecr.aws/docker/library/mysql:8.0.34"
+          securityContext:
+            runAsUser: 999
+            runAsGroup: 999
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: my-secret-pw
+            - name: MYSQL_DATABASE
+              value: catalogdb
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              export MYSQL_USER=$(cat /mnt/secrets-store/MYSQL_USER);
+              export MYSQL_PASSWORD=$(cat /mnt/secrets-store/MYSQL_PASSWORD);
+              echo "Initializing MySQL as $MYSQL_USER..."
+              exec /usr/local/bin/docker-entrypoint.sh mysqld
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+            - name: group-repl
+              containerPort: 33061 # Added this port
+              protocol: TCP
+          volumeMounts:
+            - name: data-ebs
+              mountPath: /var/lib/mysql
+            - name: conf
+              mountPath: /etc/mysql/conf.d # MySQL reads config from here
+            - name: config-file
+              mountPath: /etc/mysql/conf.d/group-replication.cnf
+              subPath: group-replication.cnf
+            - name: aws-secrets
+              mountPath: /mnt/secrets-store
+              readOnly: true
+        - name: gr-sidecar
+          image: "public.ecr.aws/docker/library/mysql:8.0"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: my-secret-pw
+          command:
+            - bash
+            - "-c"
+            - |
+              set -e
+              
+              # Function to query local MySQL
+              run_sql() {
+                mysql -h 127.0.0.1 -u root -p"${MYSQL_ROOT_PASSWORD}" -N -s -e "$1"
+              }
+
+              echo "Starting GR management sidecar..."
+
+              while true; do
+                # 1. Wait for MySQL to be reachable
+                until mysqladmin ping -h 127.0.0.1 -u root -p"${MYSQL_ROOT_PASSWORD}" --silent; do
+                  echo "Waiting for local MySQL to be ready..."
+                  sleep 5
+                done
+
+                # 2. Check current replication status
+                # Returns 'ONLINE', 'OFFLINE', 'RECOVERING', or empty
+                STATE=$(run_sql "SELECT member_state FROM performance_schema.replication_group_members WHERE member_id=@@server_uuid;")
+
+                if [ "$STATE" == "ONLINE" ]; then
+                  echo "Node is ONLINE. Sleeping..."
+                elif [ "$STATE" == "RECOVERING" ]; then
+                  echo "Node is RECOVERING. Waiting..."
+                else
+                  echo "Node is $STATE. Attempting to join..."
+                  
+                  # 3. Identity Logic
+                  [[ "$HOSTNAME" =~ -([0-9]+)$ ]] || exit 1
+                  ORDINAL=${BASH_REMATCH[1]}
+
+                  if [ "$ORDINAL" -eq 0 ]; then
+                    # Check if ANY other node is already online to avoid re-bootstrapping a running cluster
+                    ANY_ONLINE=$(run_sql "SELECT COUNT(*) FROM performance_schema.replication_group_members WHERE member_state='ONLINE';")
+                    
+                    if [ "$ANY_ONLINE" -eq 0 ]; then
+                      echo "No group found. Bootstrapping as primary..."
+                      run_sql "SET GLOBAL group_replication_bootstrap_group=ON; START GROUP_REPLICATION; SET GLOBAL group_replication_bootstrap_group=OFF;"
+                    else
+                      echo "Group already exists. Joining as regular member..."
+                      run_sql "START GROUP_REPLICATION;"
+                    fi
+                  else
+                    echo "Joining existing group..."
+                    # Add jitter to prevent all secondaries from hitting the primary at once
+                    sleep $((RANDOM % 10))
+                    run_sql "START GROUP_REPLICATION;" || echo "Join failed, will retry..."
+                  fi
+                fi
+
+                sleep 30 # Check status every 30 seconds
+              done
+          livenessProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p$(MYSQL_ROOT_PASSWORD)"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - bash
+                - "-c"
+                - |
+                  mysql -h 127.0.0.1 -u root -p"${MYSQL_ROOT_PASSWORD}" -N -s -e \
+                  "SELECT 1 FROM performance_schema.replication_group_members WHERE member_id=@@server_uuid AND member_state='ONLINE';"
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          startupProbe:
+            exec:
+              command: ["mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p$(MYSQL_ROOT_PASSWORD)"]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 15 # Gives it 150 seconds to start before killing it  
+
+      volumes:
+        - name: conf
+          emptyDir: {}
+        - name: config-file
+          configMap:
+            name: catalog
+            items:
+              - key: group-replication.cnf
+                path: group-replication.cnf
+        #- name: data
+        #  emptyDir: {}
+        - name: aws-secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "catalog-db-secrets"
+# Added for provisioning EBS Volumes
+  volumeClaimTemplates:
+  - metadata:
+      name: data-ebs
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      # If on AWS EKS, you might use 'gp2' or 'gp3'
+      storageClassName: ebs-sc
+      resources:
+        requests:
+          storage: 10Gi
