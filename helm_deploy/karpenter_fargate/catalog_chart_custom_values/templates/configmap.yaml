@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    {{- include "catalog.labels" . | nindent 4 }}
+data:
+  RETAIL_CATALOG_PERSISTENCE_PROVIDER: "{{ .Values.catalog.persistence.provider }}"
+  RETAIL_CATALOG_PERSISTENCE_ENDPOINT: "{{ .Values.catalog.persistence.endpoint }}"
+  RETAIL_CATALOG_PERSISTENCE_DB_NAME: "{{ .Values.catalog.persistence.dbName }}"
+  RETAIL_CATALOG_PERSISTENCE_CONNECT_TIMEOUT: "{{ .Values.catalog.persistence.connectTimeout }}"

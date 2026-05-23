@@ -1,0 +1,9 @@
+{{- if .Values.externalMysql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.externalMysql.serviceName }}
+spec:
+  type: ExternalName
+  externalName: {{ .Values.externalMysql.externalName }}
+{{- end }}
