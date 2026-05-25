@@ -53,7 +53,7 @@ ingress:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 
-  backendService: ui-np
+  backendService: catalog-np
 
   hosts:
     - host: myapp.local
@@ -65,3 +65,22 @@ ingress:
     - secretName: myapp-tls
       hosts:
         - myapp.local
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: ScheduleAnyway
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: karpenter.sh/capacity-type
+              operator: In
+              values: ["on-demand"]

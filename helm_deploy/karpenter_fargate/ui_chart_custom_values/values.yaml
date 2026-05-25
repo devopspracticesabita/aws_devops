@@ -109,6 +109,7 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 50
+  targetMEMUtilizationPercentage: 70
 
 affinity:
   nodeAffinity:

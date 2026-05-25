@@ -44,6 +44,6 @@ spec:
       name: memory
       target:
         type: Utilization
-        averageUtilization: 70
+        averageUtilization: {{ .Values.autoscaling.targetMEMUtilizationPercentage }}
 
 {{- end }}

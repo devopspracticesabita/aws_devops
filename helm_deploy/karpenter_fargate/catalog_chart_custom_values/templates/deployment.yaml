@@ -23,6 +23,18 @@ spec:
       serviceAccountName: {{ .Values.serviceAccount.name }}
       securityContext:
         fsGroup: {{ .Values.securityContext.fsGroup }}
+      {{- if .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- range .Values.topologySpreadConstraints }}
+        - maxSkew: {{ .maxSkew }}
+          topologyKey: {{ .topologyKey }}
+          whenUnsatisfiable: {{ .whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ $.Chart.Name }}
+              app.kubernetes.io/instance: {{ $.Release.Name }}
+        {{- end }}
+      {{- end }}
       containers:
         - name: catalog
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -66,3 +78,15 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: "{{ .Values.secrets.secretProviderClass }}"
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
