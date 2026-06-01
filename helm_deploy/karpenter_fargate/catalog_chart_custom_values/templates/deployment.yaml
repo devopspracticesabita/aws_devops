@@ -35,6 +35,18 @@ spec:
               app.kubernetes.io/instance: {{ $.Release.Name }}
         {{- end }}
       {{- end }}
+      
+      # initContainers:
+      #   - name: otel-auto-instrumentation
+      #     image: public.ecr.aws/aws-observability/aws-otel-auto-instrumentation:latest
+      #     command:
+      #       - /bin/sh
+      #       - -c
+      #       - |
+      #         cp -r /otel-auto-instrumentation/* /otel-auto/
+          # volumeMounts:
+          #   - name: otel-auto
+          #     mountPath: /otel-auto
       containers:
         - name: catalog
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -42,6 +54,20 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Chart.Name }}
+          
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://otel-collector.aws-otel-collector.svc.cluster.local:4317
+
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: grpc
+
+            - name: OTEL_SERVICE_NAME
+              value: catalog-service
+
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=catalog-service,service.namespace=retail
+
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
@@ -65,11 +91,16 @@ spec:
             - name: {{ .Values.secrets.volumeName }}
               mountPath: {{ .Values.secrets.mountPath }}
               readOnly: true
+            # - name: otel-auto
+            #   mountPath: /otel-auto
           command: ["/bin/bash", "-c"]
           args:
             - |
               export RETAIL_CATALOG_PERSISTENCE_USER=$(cat {{ .Values.secrets.mountPath }}/MYSQL_USER);
               export RETAIL_CATALOG_PERSISTENCE_PASSWORD=$(cat {{ .Values.secrets.mountPath }}/MYSQL_PASSWORD);
+              export OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector.aws-otel-collector.svc.cluster.local:4317;
+              export OTEL_EXPORTER_OTLP_PROTOCOL=grpc;
+              export OTEL_SERVICE_NAME=catalog-service;
               exec /app/main
       volumes:
         - name: {{ .Values.secrets.volumeName }}
@@ -78,6 +109,8 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: "{{ .Values.secrets.secretProviderClass }}"
+        # - name: otel-auto
+        #   emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

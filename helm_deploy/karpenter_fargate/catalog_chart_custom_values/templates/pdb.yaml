@@ -4,10 +4,10 @@ kind: PodDisruptionBudget
 metadata:
   name: {{ .Chart.Name }}-pdb
   labels:
-    {{- include "ui.labels" . | nindent 4 }}
+    {{- include "catalog.labels" . | nindent 4 }}
 spec:
   minAvailable: {{ .Values.pdb.minAvailable }}
   selector:
     matchLabels:
-      {{- include "ui.selectorLabels" . | nindent 6 }}
+      {{- include "catalog.labels" . | nindent 6 }}
 {{- end }}

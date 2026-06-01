@@ -3,7 +3,7 @@
 {{- end }}
 
 {{- if .Values.ingress.enabled }}
-{{- $fullName := include "ui.fullname" . }}
+{{- $fullName := include "catalog.fullname" . }}
 {{- $svcPort := .Values.service.port | default 80 }}
 
 apiVersion: networking.k8s.io/v1
@@ -11,7 +11,7 @@ kind: Ingress
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "ui.labels" . | nindent 4 }}
+    {{- include "catalog.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

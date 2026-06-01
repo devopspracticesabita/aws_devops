@@ -28,8 +28,8 @@ resource "kubectl_manifest" "karpenter_node_pool" {
       name: default
     spec:
       limits:
-        cpu: "100"
-        memory: "400Gi"
+        cpu: "200"
+        memory: "800Gi"
       template:
         spec:
           nodeClassRef:
@@ -44,9 +44,17 @@ resource "kubectl_manifest" "karpenter_node_pool" {
             - key: karpenter.k8s.aws/instance-family
               operator: In
               values:
-                - t4g
-                - t3
                 - m5
+                - m6i
+                - c5
+                - c6i
+            
+            - key: karpenter.k8s.aws/instance-size
+              operator: In
+              values:
+                - large
+                - xlarge
+
 
           disruption:
             consolidationPolicy: WhenUnderutilized

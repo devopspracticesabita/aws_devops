@@ -48,10 +48,15 @@ externalMysql:
 
 ingress:
   enabled: true
-  className: nginx
+  className: alb
+
+pdb:
+  enabled: false
+  minAvailable: 1
 
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
 
   backendService: catalog-np
 
@@ -84,3 +89,9 @@ affinity:
             - key: karpenter.sh/capacity-type
               operator: In
               values: ["on-demand"]
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
