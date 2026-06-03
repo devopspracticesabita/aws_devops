@@ -143,8 +143,18 @@ config:
   exporters:
     awsxray:
     awsemf:
+    prometheusremotewrite:
+      endpoint: ${aws_prometheus_workspace.amp.prometheus_endpoint}
+      auth:
+        authenticator: sigv4auth
+
+  extensions:
+  sigv4auth:
+    region: ap-south-2
 
   service:
+    extensions: [sigv4auth]
+
     pipelines:
       traces:
         receivers: [otlp]
@@ -153,7 +163,7 @@ config:
       metrics:
         receivers: [otlp, prometheus]
         processors: [batch]
-        exporters: [awsemf]
+        exporters: [awsemf, prometheusremotewrite]
 EOT
   ]
 
