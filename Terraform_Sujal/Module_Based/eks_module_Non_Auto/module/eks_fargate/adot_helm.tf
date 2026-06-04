@@ -149,11 +149,12 @@ config:
         authenticator: sigv4auth
 
   extensions:
-  sigv4auth:
-    region: ap-south-2
+    health_check: {}
+    sigv4auth:
+      region: ap-south-2
 
   service:
-    extensions: [sigv4auth]
+    extensions: [health_check, sigv4auth]
 
     pipelines:
       traces:

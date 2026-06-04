@@ -85,3 +85,9 @@ provider "kubectl" {
     command     = "aws"
   }
 }
+
+
+provider "aws" {
+  alias  = "grafana"
+  region = "us-east-1"
+}

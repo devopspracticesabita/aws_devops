@@ -43,6 +43,7 @@ module "eks" {
   providers = {
     aws     = aws
     kubectl = kubectl # Forces the module to use alekc/kubectl instead of looking for hashicorp/kubectl
+    aws.grafana  = aws.grafana
   }
 }
 
