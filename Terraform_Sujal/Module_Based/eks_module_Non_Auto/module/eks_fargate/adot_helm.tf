@@ -136,6 +136,17 @@ config:
           - job_name: 'node-exporter'
             static_configs:
               - targets: ['node-exporter-prometheus-node-exporter.kube-system:9100']
+      
+    kubeletstats:
+      collection_interval: 30s
+      auth_type: serviceAccount
+      endpoint: https://$${env:K8S_NODE_NAME}:10250
+      insecure_skip_verify: true
+
+      metric_groups:
+        - node
+        - pod
+        - container
 
   processors:
     batch: {}
@@ -162,7 +173,7 @@ config:
         processors: [batch]
         exporters: [awsxray]
       metrics:
-        receivers: [otlp, prometheus]
+        receivers: [otlp, prometheus, kubeletstats]
         processors: [batch]
         exporters: [awsemf, prometheusremotewrite]
 EOT

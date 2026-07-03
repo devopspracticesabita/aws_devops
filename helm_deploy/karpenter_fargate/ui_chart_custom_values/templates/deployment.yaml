@@ -38,7 +38,20 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: JAVA_OPTS
-              value: -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/urandom
+              value: >-
+                -javaagent:/otel/opentelemetry-javaagent.jar
+                -XX:MaxRAMPercentage=75.0 
+                -Djava.security.egd=file:/dev/urandom
+            - name: OTEL_SERVICE_NAME
+              value: ui
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://adot-collector.aws-otel-collector.svc.cluster.local:4317
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: grpc
+            - name: OTEL_TRACES_EXPORTER
+              value: otlp
+            - name: OTEL_METRICS_EXPORTER
+              value: otlp
             - name: METADATA_KUBERNETES_POD_NAME
               valueFrom:
                 fieldRef:
