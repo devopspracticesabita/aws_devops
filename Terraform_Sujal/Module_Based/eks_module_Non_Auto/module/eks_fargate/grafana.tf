@@ -71,3 +71,15 @@ resource "aws_grafana_workspace" "grafana" {
     aws_iam_role_policy_attachment.grafana_amp
   ]
 }
+
+
+resource "aws_grafana_role_association" "admins" {
+  provider = aws.grafana
+  workspace_id = aws_grafana_workspace.grafana.id
+
+  role = "ADMIN"
+
+  group_ids = [
+    "d42834b8-30a1-70e2-85e7-632255dbd564"
+  ]
+}
