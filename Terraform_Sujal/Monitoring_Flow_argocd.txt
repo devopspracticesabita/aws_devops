@@ -38,6 +38,31 @@ ADOT
  ↓
 X-Ray
 
+*****************************
+
+ArgoCD Helm Chart
+      ↓
+Ingress (auto-generated)
+      ↓
+AWS Load Balancer Controller
+      ↓
+ALB
+
+******************************
+
+Internet
+    ↓
+Route53
+  argocd.catalogservicesuj.com
+          ↓
+       ALB
+          ↓
+     ArgoCD Ingress
+          ↓
+    argocd-server
+
+******************************
+
 
 aws sso-admin list-instances --region us-east-1
 {                                                                                                                                                                    
@@ -62,3 +87,8 @@ aws identitystore create-group --identity-store-id d-90667160d7 --display-name G
     "GroupId": "d42834b8-30a1-70e2-85e7-632255dbd564",
     "IdentityStoreId": "d-90667160d7"
 }
+
+
+kubectl rollout restart deployment external-dns-retail-dev-eksdemodev -n kube-system
+
+[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String((kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}")))
