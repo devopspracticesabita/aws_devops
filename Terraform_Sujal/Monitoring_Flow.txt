@@ -13,6 +13,31 @@ AMP
 +
 Grafana
 
+Application
+ ├─ Logs
+ ├─ Metrics
+ └─ Traces
+
+Logs
+ ↓
+Fluent Bit
+ ↓
+CloudWatch Logs
+
+Metrics
+ ↓
+ADOT
+ ↓
+AMP
+ ↓
+Grafana
+
+Traces
+ ↓
+ADOT
+ ↓
+X-Ray
+
 
 aws sso-admin list-instances --region us-east-1
 {                                                                                                                                                                    
