@@ -38,6 +38,7 @@ EOT
   ]
 
   depends_on = [
-    module.fluentbit_irsa_role
+    module.fluentbit_irsa_role,
+    aws_cloudwatch_log_group.application
   ]
 }
