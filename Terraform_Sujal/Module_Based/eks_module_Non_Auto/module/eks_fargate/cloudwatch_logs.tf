@@ -1,3 +1,10 @@
+resource "aws_cloudwatch_log_group" "application" {
+  name              = "/aws/eks/${local.name}/application"
+  retention_in_days = 30
+
+  tags = var.tags
+}
+
 resource "aws_cloudwatch_log_group" "node_exporter" {
   name              = "/metrics/node-exporter"
   retention_in_days = 30
