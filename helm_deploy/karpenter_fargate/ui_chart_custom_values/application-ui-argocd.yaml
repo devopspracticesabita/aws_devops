@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ui
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/devopspracticesabita/aws_devops.git
+    targetRevision: master
+    path: helm_deploy/karpenter_fargate/ui_chart_custom_values
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true    # Auto-delete resources not in Git
+      selfHeal: true # Auto-sync if drift detected
+    syncOptions:
+      - CreateNamespace=true
