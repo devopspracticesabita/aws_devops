@@ -71,8 +71,7 @@ module "rds" {
   source                = "./module/rds"
   environment_name      = var.environment_name
   tags                  = var.tags
-  #eks_sg_id             = module.eks.eks_cluster_security_group_id
-  eks_sg_id             = module.eks.node_security_group_id
+  eks_sg_id             = module.eks.eks_cluster_security_group_id
   vpc_id                = module.vpc.vpc_id
   private_subnet_ids    = module.vpc.private_subnet_ids
   multi_az              = var.multi_az            # Set to true for production HA

@@ -47,14 +47,6 @@ spec:
           # volumeMounts:
           #   - name: otel-auto
           #     mountPath: /otel-auto
-      initContainers:
-        - name: mysql-test
-          image: busybox:1.36
-          command:
-            - sh
-            - -c
-            - |
-              nslookup catalog-mysql
       containers:
         - name: catalog
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

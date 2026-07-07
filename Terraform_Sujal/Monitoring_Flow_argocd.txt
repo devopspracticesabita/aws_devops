@@ -114,3 +114,15 @@ db.catalog.local
 dev-mysql-db.abcxyz123.ap-south-2.rds.amazonaws.com
     ↓
 AWS RDS
+
+
+
+************** Helm Commands *****************
+
+helm lint ./catalog
+helm template catalog ./catalog
+helm install catalog ./catalog
+helm upgrade catalog ./catalog -n retail
+
+kubectl exec -it <pod-name> -- ls -l /mnt/secrets-store
+kubectl exec -it <pod-name> -- cat /mnt/secrets-store/MYSQL_USER
