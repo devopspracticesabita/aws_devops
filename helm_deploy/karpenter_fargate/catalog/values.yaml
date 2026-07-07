@@ -25,7 +25,8 @@ resources:
 catalog:
   persistence:
     provider: mysql
-    endpoint: catalog-mysql:3306
+    endpoint: catalog-mysql
+    port: 3306
     dbName: catalogdb
     connectTimeout: "5"
 
@@ -46,30 +47,9 @@ externalMysql:
   serviceName: catalog-mysql
   externalName: db.catalog.local
 
-ingress:
-  enabled: true
-  className: alb
-
 pdb:
   enabled: false
   minAvailable: 1
-
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-
-  backendService: catalog-np
-
-  hosts:
-    - host: myapp.local
-      paths:
-        - path: /
-          pathType: Prefix
-
-  tls:
-    - secretName: myapp-tls
-      hosts:
-        - myapp.local
 
 topologySpreadConstraints:
   - maxSkew: 1

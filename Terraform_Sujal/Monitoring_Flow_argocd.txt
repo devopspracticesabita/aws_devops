@@ -92,3 +92,25 @@ aws identitystore create-group --identity-store-id d-90667160d7 --display-name G
 kubectl rollout restart deployment external-dns-retail-dev-eksdemodev -n kube-system
 
 [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String((kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}")))
+
+
+Catalog Pod
+   |
+   | MySQL (3306)
+   v
+catalog-mysql Service (ExternalName)
+   |
+   v
+db.catalog.local
+   |
+   v
+RDS Endpoint
+
+
+catalog-mysql
+    ↓
+db.catalog.local
+    ↓
+dev-mysql-db.abcxyz123.ap-south-2.rds.amazonaws.com
+    ↓
+AWS RDS
