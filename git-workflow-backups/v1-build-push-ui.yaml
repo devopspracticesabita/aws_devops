@@ -12,7 +12,7 @@ permissions:
   contents: write # Needed to push commits
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: ap-south-2
   ECR_REPOSITORY: retail-store/ui
 
 jobs:

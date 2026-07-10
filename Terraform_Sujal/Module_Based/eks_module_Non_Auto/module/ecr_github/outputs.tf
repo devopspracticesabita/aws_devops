@@ -6,3 +6,8 @@ output "repository_arn" {
   description = "The ARN of the repository"
   value       = aws_ecr_repository.this.arn
 }
+
+
+output "github_role_arn" {
+  value = aws_iam_role.github_actions.arn
+}

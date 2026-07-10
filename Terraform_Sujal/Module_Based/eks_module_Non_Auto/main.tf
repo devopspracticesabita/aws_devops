@@ -207,14 +207,14 @@ module "redis" {
 #   tags = var.tags
 # }
 
-# module "my_ecr_repo" {
-#   source               = "./module/ecr"
-#   repository_name      = var.repository_name
-#   image_tag_mutability = var.image_tag_mutability
-#   scan_on_push         = var.scan_on_push
+module "my_ecr_repo" {
+  source               = "./module/ecr_github"
+  repository_name      = var.repository_name
+  image_tag_mutability = var.image_tag_mutability
+  scan_on_push         = var.scan_on_push
 
-#   tags = var.tags
-# }
+  tags = var.tags
+}
 
 module "efs" {
   source = "./module/efs"

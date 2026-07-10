@@ -1,4 +1,4 @@
-resource "aws_ecr_repository" "this" {
+resource "aws_ecr_repository" "ui" {
   name                 = var.repository_name
   image_tag_mutability = var.image_tag_mutability
   force_delete         = true # Allows terraform destroy to work even if images exist
@@ -15,8 +15,8 @@ resource "aws_ecr_repository" "this" {
 }
 
 # Automatically clean up old images to save costs
-resource "aws_ecr_lifecycle_policy" "this" {
-  repository = aws_ecr_repository.this.name
+resource "aws_ecr_lifecycle_policy" "ui" {
+  repository = aws_ecr_repository.ui.name
 
   policy = jsonencode({
     rules = [{
