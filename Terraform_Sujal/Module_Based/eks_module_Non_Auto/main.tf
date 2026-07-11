@@ -209,7 +209,7 @@ module "redis" {
 
 module "my_ecr_repo" {
   source               = "./module/ecr_github"
-  repository_name      = var.repository_name
+  ecr_repo_name        = var.ecr_repo_name
   image_tag_mutability = var.image_tag_mutability
   scan_on_push         = var.scan_on_push
 

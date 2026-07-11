@@ -1,8 +1,3 @@
-variable "repository_name" {
-  description = "The name of the ECR repository"
-  type        = string
-}
-
 variable "image_tag_mutability" {
   description = "The tag mutability setting (MUTABLE or IMMUTABLE)"
   type        = string

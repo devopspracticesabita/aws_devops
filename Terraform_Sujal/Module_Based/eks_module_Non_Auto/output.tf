@@ -60,3 +60,7 @@ output "dynamodb_table_name" {
 #   description = "The ARN of the ECR repository"
 #   value       = module.my_ecr_repo.repository_arn
 # }
+
+output "github_role_arn" {
+  value = module.my_ecr_repo.github_role_arn    
+  }

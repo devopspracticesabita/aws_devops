@@ -2,7 +2,7 @@ name: Build and Push UI Service to ECR
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
     paths:
       - "src/ui/src/**"
       #- ".github/workflows/build-push-ui.yaml" # During testing phases only for prod comment this line
@@ -26,7 +26,7 @@ jobs:
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::180789647333:role/github-actions-oidc-role-ui2
+          role-to-assume: arn:aws:iam::048408301799:role/github-actions-oidc-role-ui
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -53,20 +53,20 @@ jobs:
 
       - name: Setup Git auth using GITHUB_TOKEN
         run: |
-          git config --global user.name "ci-bot"
-          git config --global user.email "ci-bot@stacksimplify.com"
+          git config --global user.name "devopspracticesujal"
+          git config --global user.email "devops.practice.sabita@gmail.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
       - name: Update Helm values file with new image tag
         run: |
           cd src/ui
-          git config user.name "ci-bot"
-          git config user.email "ci-bot@stacksimplify.com"
+          git config user.name "devopspracticesujal"
+          git config user.email "devops.practice.sabita@gmail.com"
           sed -i "s|^  tag: .*|  tag: sha-${GITHUB_SHA::7}|" chart/values-ui.yaml
           git diff --quiet || (
             git add chart/values-ui.yaml
             git commit -m "Update UI image tag to sha-${GITHUB_SHA::7}"
-            git push origin main
+            git push origin_github master
           )
 
       - name: CI Complete

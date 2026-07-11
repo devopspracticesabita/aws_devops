@@ -266,3 +266,7 @@ variable "scan_on_push" {
   type        = bool
   default     = true
 }
+
+variable "ecr_repo_name" {
+  default = "retail-store/ui"
+}

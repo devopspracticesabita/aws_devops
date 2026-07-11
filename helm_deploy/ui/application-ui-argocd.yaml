@@ -11,7 +11,7 @@ spec:
     path: helm_deploy/karpenter_fargate/ui
     helm:
       valueFiles:
-        - values.yaml
+        - values-ui.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: default

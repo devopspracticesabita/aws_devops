@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "ui" {
-  name                 = var.repository_name
+  name                 = var.ecr_repo_name
   image_tag_mutability = var.image_tag_mutability
   force_delete         = true # Allows terraform destroy to work even if images exist
 
