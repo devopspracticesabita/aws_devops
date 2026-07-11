@@ -17,32 +17,43 @@ spec:
       {{- include "ui.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- if or .Values.podAnnotations .Values.metrics.enabled }}
       annotations:
         {{- include "ui.podAnnotations" . | nindent 8 }}
-        {{- if and .Values.opentelemetry.enabled .Values.opentelemetry.instrumentation }}
-        instrumentation.opentelemetry.io/inject-sdk: {{ .Values.opentelemetry.instrumentation }}
-        {{- end }}
-      {{- end }}
       labels:
         {{- include "ui.selectorLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.topologySpreadConstraints }}
-      topologySpreadConstraints:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       serviceAccountName: {{ include "ui.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}      
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              {{- include "ui.selectorLabels" . | nindent 14 }}
       containers:
-        - name: {{ "ui" }}
+        - name: ui
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: JAVA_OPTS
-              value: -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/urandom
+              value: >-
+                -javaagent:/otel/opentelemetry-javaagent.jar
+                -XX:MaxRAMPercentage=75.0 
+                -Djava.security.egd=file:/dev/urandom
+            - name: OTEL_SERVICE_NAME
+              value: ui
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://adot-collector.aws-otel-collector.svc.cluster.local:4317
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              value: grpc
+            - name: OTEL_TRACES_EXPORTER
+              value: otlp
+            - name: OTEL_METRICS_EXPORTER
+              value: otlp
+            - name: OTEL_LOGS_EXPORTER
+              value: oltp
             - name: METADATA_KUBERNETES_POD_NAME
               valueFrom:
                 fieldRef:
@@ -60,17 +71,24 @@ spec:
                 name: {{ include "ui.configMapName" . }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.Version }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
+          # Readiness Probe from your static yaml
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 10
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          # Startup Probe from your static yaml
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 10
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

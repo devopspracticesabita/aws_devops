@@ -1,9 +1,10 @@
 {{- if and .Values.ingress.enabled .Values.ingresses }}
   {{- fail "Cannot set both ingress.enabled and ingresses" }}
 {{- end }}
+
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "ui.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
+{{- $svcPort := .Values.service.port | default 80 -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -31,14 +32,14 @@ spec:
   rules:
     {{- if .Values.ingress.hosts }}
     {{- range .Values.ingress.hosts }}
-    - host: {{ . | quote }}
+    - host: {{ .host | quote }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: {{ $fullName }}
+                name: ui-np  # Points specifically to the NodePort service
                 port:
                   number: {{ $svcPort }}
     {{- end }}
@@ -49,64 +50,8 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ $fullName }}
+                name: ui-np  # Points specifically to the NodePort service
                 port:
                   number: {{ $svcPort }}
     {{- end }}
-{{- end }}
-{{- if .Values.ingresses }}
-{{- $fullName := include "ui.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
-{{- range .Values.ingresses }}
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: {{ $fullName }}-{{ .name }}
-  labels:
-    {{- include "ui.labels" $ | nindent 4 }}
-  {{- with .annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-spec:
-  {{- if .className }}
-  ingressClassName: {{ .className }}
-  {{- end }}
-  {{- if .tls }}
-  tls:
-    {{- range .tls }}
-    - hosts:
-        {{- range .hosts }}
-        - {{ . | quote }}
-        {{- end }}
-      secretName: {{ .secretName }}
-    {{- end }}
-  {{- end }}
-  rules:
-    {{- if .hosts }}
-    {{- range .hosts }}
-    - host: {{ . | quote }}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $fullName }}
-                port:
-                  number: {{ $svcPort }}
-    {{- end }}
-    {{- else }}
-    - http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ $fullName }}
-                port:
-                  number: {{ $svcPort }}
-    {{- end }}
-{{- end }}
 {{- end }}
