@@ -7,24 +7,14 @@ replicaCount: 3
 image:
   repository: public.ecr.aws/aws-containers/retail-store-sample-ui
   pullPolicy: IfNotPresent
-  tag: "1.2.4" # Set this to match your deployment.yaml
+  tag: sha-e28abd0
 
-# Service Account
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # The name of the service account to use.
-  name: "ui"
-  # Annotations to add to the service account
-  annotations: {}
-  # If not set and create is true, a name is generated using the fullname template
-
-configMap:
-  create: true
-  name: "ui" # Force the name to match your static k8s yaml
-
-# Application Specifics (ConfigMap)
+# ----------------------------------------------------------------------------
+# APPLICATION CONFIGURATION
+# ----------------------------------------------------------------------------
 app:
+  theme: green  # Options: orange, default, green, teal
+  
   endpoints:
     catalog: http://catalog
     carts: http://carts
