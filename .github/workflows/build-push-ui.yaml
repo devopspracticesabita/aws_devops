@@ -55,7 +55,7 @@ jobs:
         run: |
           git config --global user.name "devopspracticesujal"
           git config --global user.email "devops.practice.sabita@gmail.com"
-          git remote set-url origin_github https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
       - name: Update Helm values file with new image tag
         run: |
@@ -66,7 +66,7 @@ jobs:
           git diff --quiet || (
             git add chart/values-ui.yaml
             git commit -m "Update UI image tag to sha-${GITHUB_SHA::7}"
-            git push origin_github master
+            git push origin master
           )
 
       - name: CI Complete
