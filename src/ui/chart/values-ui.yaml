@@ -7,7 +7,7 @@ replicaCount: 3
 image:
   repository: public.ecr.aws/aws-containers/retail-store-sample-ui
   pullPolicy: IfNotPresent
-  tag: sha-e28abd0
+  tag: sha-99e6279
 
 # ----------------------------------------------------------------------------
 # APPLICATION CONFIGURATION
