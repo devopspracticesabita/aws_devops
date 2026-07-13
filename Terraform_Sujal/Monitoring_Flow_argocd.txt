@@ -130,3 +130,30 @@ helm upgrade catalog ./catalog -n retail
 
 kubectl exec -it <pod-name> -- ls -l /mnt/secrets-store
 kubectl exec -it <pod-name> -- cat /mnt/secrets-store/MYSQL_USER
+
+*****************************************************************
+
+************** Kubernetes Cluster Upgrade **************
+
+1. Upgrade EKS Control Plane
+      1.31 → 1.32
+
+2. Upgrade Addons
+      CoreDNS
+      kube-proxy
+      VPC CNI
+      EBS CSI
+
+3. Verify Karpenter works
+
+4. Verify NodeClass AMI compatibility
+
+5. Launch replacement nodes
+
+6. Drain old nodes one-by-one
+
+7. Verify all nodes are on 1.32
+
+8. Validate applications
+
+9. Monitor for 24-48 hours

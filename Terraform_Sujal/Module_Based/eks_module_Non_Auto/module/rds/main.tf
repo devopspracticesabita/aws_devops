@@ -54,7 +54,8 @@ resource "aws_db_instance" "main" {
   max_allocated_storage   = var.max_allocated_storage
   multi_az                = var.multi_az
   backup_retention_period = 1
-  apply_immediately       = true
+  apply_immediately       = false # Must be false for PROD
+  # maintenance_window    = "sun:03:00-sun:04:00"
   db_name                 = local.db_creds["db_name"]        # Fetches 'db_name' key from JSON
   username                = local.db_creds["MYSQL_USER"]     # Fetches 'username' key from JSON
   password                = local.db_creds["MYSQL_PASSWORD"] # Fetches 'password' key from JSON
