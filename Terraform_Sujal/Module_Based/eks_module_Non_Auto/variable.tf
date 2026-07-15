@@ -146,7 +146,7 @@ variable "ebs_service_account" {
 variable "multi_az" {
   description = "Enable Multi-AZ deployment for high availability"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "create_read_replica" {
@@ -217,7 +217,7 @@ variable "node_type" {
 variable "num_cache_clusters" {
   description = "Total number of cache clusters (primary + replicas). Minimum 2 for Multi-AZ"
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "parameter_group_name" {
@@ -239,7 +239,7 @@ variable "key_name" {
 }
 
 # SageMaker Specific Variables
-variable "sagemaker_region" {
+variable "dr_region" {
   type    = string
   default = "ap-south-1"
 }

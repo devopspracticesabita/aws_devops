@@ -39,7 +39,7 @@ variable "parameter_group_name" {
 variable "num_cache_clusters" {
   description = "Total number of cache clusters (primary + replicas). Minimum 2 for Multi-AZ"
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "multi_az" {
