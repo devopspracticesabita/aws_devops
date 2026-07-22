@@ -43,6 +43,17 @@ provider "aws" {
   region = "ap-south-1"
 }
 
+
+# Management Account
+provider "aws" {
+  alias  = "management"
+  region = "ap-south-2"
+
+  assume_role {
+    role_arn = "arn:aws:iam::048408301799:role/Route53ManagementRole"
+  }
+}
+
 provider "helm" {
   kubernetes {
     host                   = module.eks.eks_cluster_endpoint

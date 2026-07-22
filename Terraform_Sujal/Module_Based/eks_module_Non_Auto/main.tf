@@ -82,6 +82,10 @@ module "rds" {
 
 module "route_53_external_dns" {
   source           = "./module/route_53_external_dns"
+  providers = {
+    aws            = aws
+    aws.management = aws.management
+  }
   vpc_id           = module.vpc.vpc_id
   rds_address      = module.rds.rds_endpoint_address
   environment_name = var.environment_name

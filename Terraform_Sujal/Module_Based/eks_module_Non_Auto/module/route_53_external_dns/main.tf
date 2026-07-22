@@ -18,6 +18,7 @@ resource "aws_route53_record" "rds_cname" {
 
 # 3. The Public Hosted Zone's Information Coming From Created Domain in Route 53
 data "aws_route53_zone" "public" {
+  provider     = aws.management
   name         = var.public_domain_name
   private_zone = false
 }

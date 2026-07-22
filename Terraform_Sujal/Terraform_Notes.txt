@@ -6,6 +6,8 @@ Third Priority ::: terraform.tfvars
 Fourth Priority ::: Environment Variables
 Last Priority ::: variable.tf
 
+aws eks update-kubeconfig --region ap-south-2 --name retail-dev-eksdemodev --profile dev
+
 $env:AWS_PROFILE="dev"
 echo $env:AWS_PROFILE
 aws sso login --profile dev
