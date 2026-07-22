@@ -124,6 +124,8 @@ resource "aws_eks_access_entry" "karpenter_node" {
   type          = "EC2_LINUX"
 }
 
+data "aws_caller_identity" "current1" {}
+
 # Inline policy to grant Karpenter permissions to manage instance profiles dynamically
 resource "aws_iam_role_policy" "karpenter_instance_profile_generation" {
   name = "${local.name}-karpenter-instance-profile-mgmt"
@@ -143,7 +145,7 @@ resource "aws_iam_role_policy" "karpenter_instance_profile_generation" {
           "iam:TagInstanceProfile"
         ]
         # Restrict to profiles matching your cluster prefix for security
-        Resource = "arn:aws:iam::048408301799:instance-profile/${local.name}-*"
+        Resource = "arn:aws:iam::${data.aws_caller_identity.current1.account_id}:instance-profile/${local.name}-*"
       }
     ]
   })

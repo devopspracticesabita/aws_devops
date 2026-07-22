@@ -29,14 +29,7 @@ terraform {
       version = "2.29.0"
     }
   }
-  backend "s3" {
-    bucket  = "tfstate-bucket-sujal-mitra"
-    key     = "dev/terraform.tfstate"
-    region  = "ap-south-2"
-    encrypt = true
-    # Optional: Use native S3 locking (Terraform 1.10+)
-    use_lockfile = true
-  }
+  backend "s3" {}
 }
 
 # Configure the AWS Provider

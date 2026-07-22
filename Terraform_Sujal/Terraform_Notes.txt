@@ -5,3 +5,25 @@ Second Priority ::: *auto.tfvars [Example: dev.auto.tfvars	]
 Third Priority ::: terraform.tfvars
 Fourth Priority ::: Environment Variables
 Last Priority ::: variable.tf
+
+$env:AWS_PROFILE="dev"
+echo $env:AWS_PROFILE
+aws sso login --profile dev
+aws sts get-caller-identity --profile dev
+
+terraform init -backend-config="environments/dev/backend.hcl"
+terraform validate
+terraform plan -var-file="environments/dev/terraform.tfvars"
+terraform apply -var-file="environments/dev/terraform.tfvars"
+
+Switching from Dev to Prod ::::::
+
+$env:AWS_PROFILE="prod"
+echo $env:AWS_PROFILE
+aws sso login --profile prod
+aws sts get-caller-identity --profile prod
+
+terraform init -reconfigure -backend-config="environments/prod/backend.hcl"
+terraform validate
+terraform plan -var-file="environments/prod/terraform.tfvars"
+terraform apply -var-file="environments/prod/terraform.tfvars"

@@ -6,19 +6,16 @@
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
   type        = string
-  default     = "10.0.0.0/16"
 }
 
 variable "subnet_newbits" {
   description = "Number of new bits to add to VPC CIDR to generate subnets (e.g., 8 means /24 from /16)"
   type        = number
-  default     = 8
 }
 
 variable "aws_region" {
   description = "AWS region to deploy resources"
   type        = string
-  default     = "ap-south-2"
 }
 
 # --------------------------------------------------------
@@ -29,14 +26,12 @@ variable "aws_region" {
 variable "environment_name" {
   description = "Environment name used in resource names and tags"
   type        = string
-  default     = "dev"
 }
 
 # Business unit or department (used in tags and naming)
 variable "business_division" {
   description = "Business Division in the large organization this infrastructure belongs to"
   type        = string
-  default     = "retail"
 }
 
 # --------------------------------------------------------
@@ -47,42 +42,36 @@ variable "business_division" {
 variable "cluster_name" {
   description = "Name of the EKS cluster. Also used as a prefix in names of related resources."
   type        = string
-  default     = "eksdemodev"
 }
 
 # Kubernetes version for the EKS control plane
 variable "cluster_version" {
   description = "Kubernetes minor version to use for the EKS cluster (e.g. 1.28, 1.29)"
   type        = string
-  default     = "1.31"
 }
 
 # Defines the range of private IP addresses from which Kubernetes assigns virtual IPs to its Services (e.g., ClusterIPs).
 variable "cluster_service_ipv4_cidr" {
   description = "Service CIDR range for Kubernetes services. Optional — leave null to use AWS default."
   type        = string
-  default     = null
 }
 
 # Enable access to the EKS API via private endpoint
 variable "cluster_endpoint_private_access" {
   description = "Whether to enable private access to EKS control plane endpoint"
   type        = bool
-  default     = true
 }
 
 # Enable access to the EKS API via public endpoint
 variable "cluster_endpoint_public_access" {
   description = "Whether to enable public access to EKS control plane endpoint"
   type        = bool
-  default     = true
 }
 
 # List of CIDRs allowed to reach the public EKS API endpoint
 variable "cluster_endpoint_public_access_cidrs" {
   description = "List of CIDR blocks allowed to access public EKS endpoint"
   type        = list(string)
-  default     = ["0.0.0.0/0"]
 }
 
 # --------------------------------------------------------
@@ -93,9 +82,6 @@ variable "cluster_endpoint_public_access_cidrs" {
 variable "tags" {
   description = "Tags to apply to EKS and related resources"
   type        = map(string)
-  default = {
-    Terraform = "true"
-  }
 }
 
 # --------------------------------------------------------
@@ -106,167 +92,139 @@ variable "tags" {
 variable "node_instance_types" {
   description = "List of EC2 instance types for the node group"
   type        = list(string)
-  default     = ["t3.medium"]
 }
 
 # Capacity type for node group (ON_DEMAND or SPOT)
 variable "node_capacity_type" {
   description = "Instance capacity type: ON_DEMAND or SPOT"
   type        = string
-  default     = "ON_DEMAND"
 }
 
 # Root volume size (GiB) for worker nodes
 variable "node_disk_size" {
   description = "Disk size in GiB for worker nodes"
   type        = number
-  default     = 20
 }
 
 variable "namespace" {
   type    = string
-  default = "default"
 }
 
 variable "service_account" {
   type    = string
-  default = "aws-cli-sa"
 }
 
 variable "ebs_namespace" {
   type    = string
-  default = "kube-system"
 }
 
 variable "ebs_service_account" {
   type    = string
-  default = "ebs-csi-controller-sa"
 }
 
 variable "multi_az" {
   description = "Enable Multi-AZ deployment for high availability"
   type        = bool
-  default     = true
 }
 
 variable "create_read_replica" {
   description = "Whether to create a read replica"
   type        = bool
-  default     = false
 }
 
 variable "instance_class" {
   description = "DB instance size"
   type        = string
-  default     = "db.t3.micro"
 }
 
 variable "max_allocated_storage" {
   description = "The upper limit to which RDS can automatically scale the storage (e.g., 100 GB)"
   type        = number
-  default     = 100
 }
 
 variable "deletion_protection" {
   description = "Enables deletion protection for the DynamoDB table"
   type        = bool
-  default     = false # Safety first!
 }
 
 variable "table_name" {
   type        = string
   description = "The name of the DynamoDB table"
-  default     = "cart"
 }
 
 variable "hash_key" {
   type        = string
   description = "The Partition Key name"
-  default     = "UserId"
 }
 
 variable "hash_key_type" {
   type    = string
-  default = "S" # S=String, N=Number, B=Binary
 }
 
 variable "postgres_instance_class" {
   description = "Postgres instance size"
   type        = string
-  default     = "db.t3.micro"
 }
 
 variable "db_secret_name" {
   description = "Name of the secret in AWS Secrets Manager"
   type        = string
-  default     = "catalog-db-secret-3"
 }
 
 variable "redis_version" {
   description = "Redis engine version. MUST be 7.0 or higher for IAM Authentication"
   type        = string
-  default     = "7.0"
 }
 
 variable "node_type" {
   description = "The instance class for the Redis nodes (e.g., cache.t3.medium)"
   type        = string
-  default     = "cache.t3.medium"
 }
 
 variable "num_cache_clusters" {
   description = "Total number of cache clusters (primary + replicas). Minimum 2 for Multi-AZ"
   type        = number
-  default     = 2
 }
 
 variable "parameter_group_name" {
   description = "The name of the parameter group to associate with this replication group"
   type        = string
-  default     = "default.redis7"
 }
 
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
-  default     = "t3.micro"
 }
 
 variable "key_name" {
   description = "The SSH key pair name to access the instance"
   type        = string
-  default     = "sujal_ubuntu"
 }
 
 # SageMaker Specific Variables
 variable "dr_region" {
   type    = string
-  default = "ap-south-1"
 }
 
 variable "sagemaker_vpc_cidr" {
   type    = string
-  default = "10.1.0.0/16" # Must be different from your primary VPC
 }
 
 variable "repository_name" {
   description = "The name of the ECR repository"
   type        = string
-  default     = "retail_repo"
 }
 
 variable "image_tag_mutability" {
   description = "The tag mutability setting (MUTABLE or IMMUTABLE)"
   type        = string
-  default     = "MUTABLE"
 }
 
 variable "scan_on_push" {
   description = "Indicates whether images are scanned after being pushed to the repository"
   type        = bool
-  default     = true
 }
 
 variable "ecr_repo_name" {
-  default = "retail-store/ui"
+  description = "ecr repo name"
 }
