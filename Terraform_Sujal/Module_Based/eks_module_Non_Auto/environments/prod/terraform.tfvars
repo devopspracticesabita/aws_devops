@@ -21,9 +21,12 @@ ebs_namespace           = "kube-system"
 ebs_service_account     = "ebs-csi-controller-sa"
 multi_az                = true
 create_read_replica     = false
-instance_class          = "db.t3.micro"
+instance_class          = "db.t3.medium"
 max_allocated_storage   = 100
 deletion_protection     = true         # Safety First
+skip_final_snapshot     = false
+backup_retention_period = 35
+final_snapshot_identifier = "prod-final-snapshot"
 table_name              = "cart"
 hash_key                = "UserId"
 hash_key_type           = "S"           # S=String, N=Number, B=Binary

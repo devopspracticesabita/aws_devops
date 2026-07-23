@@ -46,27 +46,27 @@ resource "aws_db_subnet_group" "main" {
 
 # 3. RDS Instance (Example MySQL)
 resource "aws_db_instance" "main" {
-  identifier              = "${var.environment_name}-mysql-db"
-  engine                  = "mysql"
-  engine_version          = var.mysql_version
-  instance_class          = var.instance_class
-  allocated_storage       = 20
-  max_allocated_storage   = var.max_allocated_storage
-  copy_tags_to_snapshot   = true
-  deletion_protection     = false
-  multi_az                = var.multi_az
-  backup_window           = "19:30-20:30"    # 1:00-2:00 AM IST
-  backup_retention_period = 35
-  apply_immediately       = false # Must be false for PROD
-  maintenance_window      = "sun:21:00-sun:22:00"
-  db_name                 = local.db_creds["db_name"]        # Fetches 'db_name' key from JSON
-  username                = local.db_creds["MYSQL_USER"]     # Fetches 'username' key from JSON
-  password                = local.db_creds["MYSQL_PASSWORD"] # Fetches 'password' key from JSON
-  db_subnet_group_name    = aws_db_subnet_group.main.name
-  vpc_security_group_ids  = [aws_security_group.rds_sg.id]
-  skip_final_snapshot     = false
-  final_snapshot_identifier = "${var.environment_name}-final-snapshot"
-  tags                    = var.tags
+  identifier                = "${var.environment_name}-mysql-db"
+  engine                    = "mysql"
+  engine_version            = var.mysql_version
+  instance_class            = var.instance_class
+  allocated_storage         = 20
+  max_allocated_storage     = var.max_allocated_storage
+  copy_tags_to_snapshot     = true
+  deletion_protection       = var.deletion_protection
+  multi_az                  = var.multi_az
+  backup_window             = "19:30-20:30"    # 1:00-2:00 AM IST
+  backup_retention_period   = var.backup_retention_period
+  apply_immediately         = false # Must be false for PROD
+  maintenance_window        = "sun:21:00-sun:22:00"
+  db_name                   = local.db_creds["db_name"]        # Fetches 'db_name' key from JSON
+  username                  = local.db_creds["MYSQL_USER"]     # Fetches 'username' key from JSON
+  password                  = local.db_creds["MYSQL_PASSWORD"] # Fetches 'password' key from JSON
+  db_subnet_group_name      = aws_db_subnet_group.main.name
+  vpc_security_group_ids    = [aws_security_group.rds_sg.id]
+  skip_final_snapshot       = var.skip_final_snapshot
+  final_snapshot_identifier = var.final_snapshot_identifier
+  tags                      = var.tags
 }
 
 # Read Replica (Conditional)
@@ -80,7 +80,8 @@ resource "aws_db_instance" "replica" {
 
   # Inherits security group and subnet group from primary implicitly
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
-  skip_final_snapshot    = false
+  skip_final_snapshot    = var.skip_final_snapshot
+  final_snapshot_identifier = var.final_snapshot_identifier
   parameter_group_name   = "default.mysql8.0"
 
   tags = merge(var.tags, { Role = "Replica" })

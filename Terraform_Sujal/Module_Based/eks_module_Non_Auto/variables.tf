@@ -228,3 +228,16 @@ variable "scan_on_push" {
 variable "ecr_repo_name" {
   description = "ecr repo name"
 }
+
+variable "skip_final_snapshot" {
+  type = bool
+}
+
+variable "backup_retention_period" {
+  type = number
+  description = "Till how many days the backup will be kept"
+}
+
+variable "final_snapshot_identifier" {
+  type    = string
+}

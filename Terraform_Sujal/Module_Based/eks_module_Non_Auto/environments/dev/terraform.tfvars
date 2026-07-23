@@ -24,6 +24,9 @@ create_read_replica     = false
 instance_class          = "db.t3.micro"
 max_allocated_storage   = 100
 deletion_protection     = false         # Safety First
+skip_final_snapshot     = true
+backup_retention_period = 7
+final_snapshot_identifier = null
 table_name              = "cart"
 hash_key                = "UserId"
 hash_key_type           = "S"           # S=String, N=Number, B=Binary

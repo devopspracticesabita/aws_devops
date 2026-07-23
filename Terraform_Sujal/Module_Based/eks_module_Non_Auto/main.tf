@@ -3,6 +3,7 @@ module "vpc" {
   environment_name = var.environment_name
   vpc_cidr         = var.vpc_cidr
   subnet_newbits   = var.subnet_newbits
+  aws_region       = var.aws_region
   tags             = var.tags
 }
 
@@ -68,16 +69,20 @@ module "pod_identity_secret_manager_ebs_csi_driver" {
 }
 
 module "rds" {
-  source                = "./module/rds"
-  environment_name      = var.environment_name
-  tags                  = var.tags
-  eks_sg_id             = module.eks.eks_cluster_security_group_id
-  vpc_id                = module.vpc.vpc_id
-  private_subnet_ids    = module.vpc.private_subnet_ids
-  multi_az              = var.multi_az            # Set to true for production HA
-  create_read_replica   = var.create_read_replica # Set to true if you need a read-only node
-  instance_class        = var.instance_class
-  max_allocated_storage = var.max_allocated_storage
+  source                  = "./module/rds"
+  environment_name        = var.environment_name
+  tags                    = var.tags
+  eks_sg_id               = module.eks.eks_cluster_security_group_id
+  vpc_id                  = module.vpc.vpc_id
+  private_subnet_ids      = module.vpc.private_subnet_ids
+  multi_az                = var.multi_az            # Set to true for production HA
+  create_read_replica     = var.create_read_replica # Set to true if you need a read-only node
+  instance_class          = var.instance_class
+  max_allocated_storage   = var.max_allocated_storage
+  backup_retention_period = var.backup_retention_period
+  skip_final_snapshot     = var.skip_final_snapshot
+  deletion_protection     = var.deletion_protection
+  final_snapshot_identifier = var.final_snapshot_identifier
 }
 
 module "route_53_external_dns" {

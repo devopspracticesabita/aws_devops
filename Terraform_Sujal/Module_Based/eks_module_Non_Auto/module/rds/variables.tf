@@ -53,3 +53,20 @@ variable "mysql_version" {
   type        = string
   default     = "8.0"
 }
+
+variable "skip_final_snapshot" {
+  type = bool
+}
+
+variable "deletion_protection" {
+  type = bool
+}
+
+variable "backup_retention_period" {
+  type = number
+  description = "Till how many days the backup will be kept"
+}
+
+variable "final_snapshot_identifier" {
+  type    = string
+}

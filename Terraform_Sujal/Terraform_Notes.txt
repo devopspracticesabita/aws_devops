@@ -20,12 +20,23 @@ terraform apply -var-file="environments/dev/terraform.tfvars"
 
 Switching from Dev to Prod ::::::
 
-$env:AWS_PROFILE="prod"
+$env:AWS_PROFILE="prod-terraform"
 echo $env:AWS_PROFILE
-aws sso login --profile prod
-aws sts get-caller-identity --profile prod
+aws sts get-caller-identity
 
 terraform init -reconfigure -backend-config="environments/prod/backend.hcl"
 terraform validate
 terraform plan -var-file="environments/prod/terraform.tfvars"
 terraform apply -var-file="environments/prod/terraform.tfvars"
+
+SujalMitra
+│
+├── AWSReadOnlyAccess
+│
+└── ProdTerraformAssumeRole
+        │
+        ▼
+TerraformDeploymentRole
+        │
+        ▼
+Deploy Infrastructure
