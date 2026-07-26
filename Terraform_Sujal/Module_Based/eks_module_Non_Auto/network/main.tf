@@ -1,22 +1,22 @@
-# data "terraform_remote_state" "dev" {
-#   backend = "s3"
+data "terraform_remote_state" "dev" {
+  backend = "s3"
 
-#   config = {
-#     bucket = "tfstate-bucket-sujal-mitra"
-#     key    = "dev/terraform.tfstate"
-#     region = "ap-south-2"
-#   }
-# }
+  config = {
+    bucket = "tfstate-bucket-sujal-mitra"
+    key    = "dev/terraform.tfstate"
+    region = "ap-south-2"
+  }
+}
 
-# data "terraform_remote_state" "prod" {
-#   backend = "s3"
+data "terraform_remote_state" "prod" {
+  backend = "s3"
 
-#   config = {
-#     bucket = "tfstate-bucket-sujal-mitra"
-#     key    = "prod/terraform.tfstate"
-#     region = "ap-south-2"
-#   }
-# }
+  config = {
+    bucket = "tfstate-bucket-sujal-mitra"
+    key    = "prod/terraform.tfstate"
+    region = "ap-south-2"
+  }
+}
 
 module "transit_gateway" {
 
