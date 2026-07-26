@@ -63,4 +63,20 @@ output "dynamodb_table_name" {
 
 output "github_role_arn" {
   value = module.my_ecr_repo.github_role_arn    
-  }
+}
+
+output "vpc_id" {
+  value = module.vpc.vpc_id
+}
+
+output "vpc_cidr" {
+value = module.vpc.vpc_cidr
+}
+
+output "private_subnet_ids" {
+  value = module.vpc.private_subnet_ids
+}
+
+output "private_route_table_ids" {
+  value = module.vpc.private_route_table_id
+}

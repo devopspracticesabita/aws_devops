@@ -30,3 +30,7 @@ output "private_subnets_map" {
 output "private_route_table_id" {
   value = aws_route_table.private_rt.id
 }
+
+output "vpc_cidr" {
+value = aws_vpc.main.cidr_block
+}
