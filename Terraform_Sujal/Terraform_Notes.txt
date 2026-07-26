@@ -6,28 +6,32 @@ Third Priority ::: terraform.tfvars
 Fourth Priority ::: Environment Variables
 Last Priority ::: variable.tf
 
-aws eks update-kubeconfig --region ap-south-2 --name retail-dev-eksdemodev --profile dev
+kubectl rollout restart deployment coredns -n kube-system
 
 $env:AWS_PROFILE="dev"
 echo $env:AWS_PROFILE
 aws sso login --profile dev
 aws sts get-caller-identity --profile dev
 
-terraform init -backend-config="environments/dev/backend.hcl"
+terraform init -reconfigure -backend-config="environments/dev/backend.hcl"
 terraform validate
 terraform plan -var-file="environments/dev/terraform.tfvars"
-terraform apply -var-file="environments/dev/terraform.tfvars"
+terraform apply -var-file="environments/dev/terraform.tfvars" --auto-approve
+aws eks update-kubeconfig --region ap-south-2 --name retail-dev-eksdemodev --profile dev
 
 Switching from Dev to Prod ::::::
 
 $env:AWS_PROFILE="prod-terraform"
 echo $env:AWS_PROFILE
+aws sso login --profile prod-admin
+aws sts get-caller-identity --profile prod-terraform
 aws sts get-caller-identity
 
 terraform init -reconfigure -backend-config="environments/prod/backend.hcl"
 terraform validate
 terraform plan -var-file="environments/prod/terraform.tfvars"
-terraform apply -var-file="environments/prod/terraform.tfvars"
+terraform apply -var-file="environments/prod/terraform.tfvars" --auto-approve
+aws eks update-kubeconfig --region ap-south-1 --name retail-prod-eksdemoprod --profile prod-terraform
 
 SujalMitra
 │
@@ -40,3 +44,43 @@ TerraformDeploymentRole
         │
         ▼
 Deploy Infrastructure
+
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:*",
+                "eks:*",
+                "elasticloadbalancing:*",
+                "autoscaling:*",
+                "iam:*",
+                "route53:*",
+                "rds:*",
+                "dynamodb:*",
+                "ecr:*",
+                "logs:*",
+                "cloudwatch:*",
+                "events:*",
+                "sqs:*",
+                "secretsmanager:*",
+                "ssm:*",
+                "kms:*",
+                "acm:*",
+                "tag:*",
+                "sts:*",
+                "ecr:*",
+                "s3:*",
+                "aps:*",
+                "grafana:*",
+                "elasticache:*",
+                "sso:DescribeRegisteredRegions",
+                "sso:ListInstances",
+                "sso:DescribeInstance"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

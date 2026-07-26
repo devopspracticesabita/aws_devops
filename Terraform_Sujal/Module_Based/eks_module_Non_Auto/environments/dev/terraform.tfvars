@@ -1,4 +1,4 @@
-vpc_cidr                             = "10.0.0.0/16"
+vpc_cidr                             = "10.10.0.0/16"
 subnet_newbits                       = 8
 aws_region                           = "ap-south-2"
 environment_name                     = "dev"

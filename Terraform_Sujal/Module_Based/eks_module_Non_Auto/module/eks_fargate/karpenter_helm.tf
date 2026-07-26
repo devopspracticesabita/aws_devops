@@ -43,7 +43,7 @@ resource "helm_release" "karpenter" {
   }
   set {
     name  = "controller.env[1].value"
-    value = "ap-south-2" # <--- REPLACE with your actual region
+    value = var.aws_region # <--- REPLACE with your actual region
   }
 
   set {

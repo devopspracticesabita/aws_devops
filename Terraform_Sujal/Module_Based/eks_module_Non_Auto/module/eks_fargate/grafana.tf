@@ -72,14 +72,28 @@ resource "aws_grafana_workspace" "grafana" {
   ]
 }
 
-
-resource "aws_grafana_role_association" "admins" {
+data "aws_ssoadmin_instances" "current" {
   provider = aws.grafana
-  workspace_id = aws_grafana_workspace.grafana.id
-
-  role = "ADMIN"
-
-  group_ids = [
-    "d42834b8-30a1-70e2-85e7-632255dbd564"
-  ]
 }
+
+data "aws_identitystore_group" "grafana_admins" {
+  provider = aws.grafana
+  identity_store_id = tolist(data.aws_ssoadmin_instances.current.identity_store_ids)[0]
+  alternate_identifier {
+    unique_attribute {
+      attribute_path  = "DisplayName"
+      attribute_value = "GrafanaAdmins"
+    }
+  }
+}
+
+# resource "aws_grafana_role_association" "admins" {
+#   provider = aws.grafana
+#   workspace_id = aws_grafana_workspace.grafana.id
+
+#   role = "ADMIN"
+
+#   group_ids = [
+#     data.aws_identitystore_group.grafana_admins.group_id
+#   ]
+# }

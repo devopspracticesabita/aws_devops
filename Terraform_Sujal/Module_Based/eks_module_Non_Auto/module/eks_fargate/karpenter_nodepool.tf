@@ -10,7 +10,7 @@ resource "kubectl_manifest" "karpenter_node_class" {
       role: ${aws_iam_role.karpenter_node_role.name}
       securityGroupSelectorTerms:
         - tags:
-            kubernetes.io/cluster/retail-dev-eksdemodev: "owned"
+            karpenter.sh/discovery: ${local.eks_cluster_name}
       subnetSelectorTerms:
         - tags:
             karpenter.sh/discovery: ${local.eks_cluster_name}
