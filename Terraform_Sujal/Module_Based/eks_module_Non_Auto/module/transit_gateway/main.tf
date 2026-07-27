@@ -28,11 +28,11 @@ resource "aws_ram_principal_association" "prod" {
   resource_share_arn = aws_ram_resource_share.tgw.arn
 }
 
-resource "aws_ram_resource_share_accepter" "prod" {
-  provider = aws.prod
+# resource "aws_ram_resource_share_accepter" "prod" {
+#   provider = aws.prod
 
-  share_arn = aws_ram_resource_share.tgw.arn
-}
+#   share_arn = aws_ram_resource_share.tgw.arn
+# }
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "dev" {
   provider = aws.dev

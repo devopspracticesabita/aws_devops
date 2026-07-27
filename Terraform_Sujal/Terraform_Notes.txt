@@ -11,13 +11,14 @@ kubectl rollout restart deployment coredns -n kube-system
 $env:AWS_PROFILE="dev"
 echo $env:AWS_PROFILE
 aws sso login --profile dev
-aws sts get-caller-identity --profile dev
+aws sts get-caller-identity --profile dev7
 
 terraform init -reconfigure -backend-config="environments/dev/backend.hcl"
 terraform validate
 terraform plan -var-file="environments/dev/terraform.tfvars"
 terraform apply -var-file="environments/dev/terraform.tfvars" --auto-approve
 aws eks update-kubeconfig --region ap-south-2 --name retail-dev-eksdemodev --profile dev
+terraform destroy -var-file="environments/dev/terraform.tfvars" --auto-approve
 
 Switching from Dev to Prod ::::::
 
@@ -31,7 +32,13 @@ terraform init -reconfigure -backend-config="environments/prod/backend.hcl"
 terraform validate
 terraform plan -var-file="environments/prod/terraform.tfvars"
 terraform apply -var-file="environments/prod/terraform.tfvars" --auto-approve
-aws eks update-kubeconfig --region ap-south-1 --name retail-prod-eksdemoprod --profile prod-terraform
+aws eks update-kubeconfig --region ap-south-2 --name retail-prod-eksdemoprod --profile prod-terraform
+
+TGW ::::::::::
+
+terraform init -reconfigure -backend-config="backend.hcl"
+terraform plan -var-file="terraform.tfvars"
+terraform apply -var-file="terraform.tfvars" --auto-approve
 
 SujalMitra
 │
