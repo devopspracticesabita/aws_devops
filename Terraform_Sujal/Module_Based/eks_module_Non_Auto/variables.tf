@@ -241,3 +241,7 @@ variable "backup_retention_period" {
 variable "final_snapshot_identifier" {
   type    = string
 }
+
+variable "rate_limit" {
+  type    = number
+}

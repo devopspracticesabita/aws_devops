@@ -44,3 +44,4 @@ repository_name         = "retail_repo_prod"
 image_tag_mutability    = "MUTABLE"
 scan_on_push            = true
 ecr_repo_name           = "retail-store/ui"
+rate_limit              = 1000

@@ -78,7 +78,7 @@ resource "aws_eks_fargate_profile" "karpenter" {
   fargate_profile_name   = "karpenter-core-infrastructure"
   pod_execution_role_arn = aws_iam_role.fargate_pod_execution.arn
 
-  # Ensure these are PRIVATE subnets
+  # Ensure these are PRIVATE subnets 
   subnet_ids = values(local.private_subnets_map)
 
   selector {
