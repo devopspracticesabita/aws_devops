@@ -8,10 +8,25 @@ Last Priority ::: variable.tf
 
 kubectl rollout restart deployment coredns -n kube-system
 
+******** MANAGEMENT PROFILE ********
+
+$env:AWS_PROFILE="management"
+echo $env:AWS_PROFILE
+aws sso login --profile management
+aws sts get-caller-identity --profile management
+
+
+terraform init -reconfigure
+terraform validate
+terraform plan
+terraform apply --auto-approve
+
+******** DEV PROFILE ********
+
 $env:AWS_PROFILE="dev"
 echo $env:AWS_PROFILE
 aws sso login --profile dev
-aws sts get-caller-identity --profile dev7
+aws sts get-caller-identity --profile dev
 
 terraform init -reconfigure -backend-config="environments/dev/backend.hcl"
 terraform validate
@@ -20,7 +35,7 @@ terraform apply -var-file="environments/dev/terraform.tfvars" --auto-approve
 aws eks update-kubeconfig --region ap-south-2 --name retail-dev-eksdemodev --profile dev
 terraform destroy -var-file="environments/dev/terraform.tfvars" --auto-approve
 
-Switching from Dev to Prod ::::::
+******** PROD PROFILE ********
 
 $env:AWS_PROFILE="prod-terraform"
 echo $env:AWS_PROFILE
@@ -34,7 +49,7 @@ terraform plan -var-file="environments/prod/terraform.tfvars"
 terraform apply -var-file="environments/prod/terraform.tfvars" --auto-approve
 aws eks update-kubeconfig --region ap-south-2 --name retail-prod-eksdemoprod --profile prod-terraform
 
-TGW ::::::::::
+******* TGW PROFILE *******
 
 terraform init -reconfigure -backend-config="backend.hcl"
 terraform plan -var-file="terraform.tfvars"
