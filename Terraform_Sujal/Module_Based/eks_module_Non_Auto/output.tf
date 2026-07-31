@@ -80,3 +80,11 @@ output "private_subnet_ids" {
 output "private_route_table_ids" {
   value = module.vpc.private_route_table_id
 }
+
+output "waf_arn" {
+  value = module.waf.web_acl_arn
+}
+
+output "waf_id" {
+  value = module.waf.web_acl_id
+}

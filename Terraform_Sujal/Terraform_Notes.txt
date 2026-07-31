@@ -7,6 +7,11 @@ Fourth Priority ::: Environment Variables
 Last Priority ::: variable.tf
 
 kubectl rollout restart deployment coredns -n kube-system
+kubectl get crd
+kubectl get ec2nodeclass
+kubectl get nodepool
+kubectl get nodeclaim
+kubectl get nodes
 
 ******** MANAGEMENT PROFILE ********
 
@@ -34,6 +39,9 @@ terraform plan -var-file="environments/dev/terraform.tfvars"
 terraform apply -var-file="environments/dev/terraform.tfvars" --auto-approve
 aws eks update-kubeconfig --region ap-south-2 --name retail-dev-eksdemodev --profile dev
 terraform destroy -var-file="environments/dev/terraform.tfvars" --auto-approve
+terraform import -var-file="environments/dev/terraform.tfvars" module.eks.helm_release.cert_manager cert-manager/cert-manager
+terraform import -var-file="environments/dev/terraform.tfvars" module.eks.helm_release.argocd argocd/argocd
+terraform import -var-file="environments/dev/terraform.tfvars" module.eks.helm_release.kube_state_metrics kube-system/kube-state-metrics
 
 ******** PROD PROFILE ********
 

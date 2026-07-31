@@ -242,3 +242,12 @@ module "efs" {
     helm_release.csi_secrets_store                      # Core CSI Custom Resource Definitions must exist
   ]
 }
+
+module "waf" {
+  source = "./module/waf"
+
+  environment_name = var.environment_name
+  rate_limit        = 1000
+
+  tags = var.tags
+}

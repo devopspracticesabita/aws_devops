@@ -4,10 +4,14 @@ resource "helm_release" "karpenter" {
   name             = "karpenter"
   repository       = "oci://public.ecr.aws/karpenter"
   chart            = "karpenter"
-  version          = "0.35.0"
+  version          = "1.2.0"
+  atomic           = true
+  cleanup_on_fail  = true
+  wait             = true
   timeout          = 900
 
   depends_on = [
+    #helm_release.karpenter_crd,
     aws_eks_fargate_profile.karpenter,
     aws_sqs_queue_policy.karpenter_interruption
   ]

@@ -104,6 +104,52 @@ resource "aws_wafv2_web_acl" "this" {
       sampled_requests_enabled   = true
     }
   }
+  
+  # Anonymous IP List Rule
+
+  rule {
+    name     = "AWSManagedAnonymousIpList"
+    priority = 35
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        vendor_name = "AWS"
+        name        = "AWSManagedRulesAnonymousIpList"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "anonymous-ip-list"
+      sampled_requests_enabled   = true
+    }
+  }
+
+  rule {
+    name = "AWSManagedSQLiRuleSet"
+    priority = 25
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        vendor_name = "AWS"
+        name = "AWSManagedRulesSQLiRuleSet"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name = "sqli-rules"
+      sampled_requests_enabled = true
+    }
+  }
 
   tags = var.tags
 }
