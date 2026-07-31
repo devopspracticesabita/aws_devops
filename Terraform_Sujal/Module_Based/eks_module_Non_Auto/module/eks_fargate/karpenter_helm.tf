@@ -4,7 +4,7 @@ resource "helm_release" "karpenter" {
   name             = "karpenter"
   repository       = "oci://public.ecr.aws/karpenter"
   chart            = "karpenter"
-  version          = "1.2.0"
+  version          = "1.6.0"
   atomic           = true
   cleanup_on_fail  = true
   wait             = true
@@ -18,12 +18,12 @@ resource "helm_release" "karpenter" {
 
   # v0.35.x Settings
   set {
-    name  = "settings.aws.clusterName"
+    name  = "settings.clusterName"
     value = aws_eks_cluster.main.name
   }
 
   set {
-    name  = "settings.aws.interruptionQueueName"
+    name  = "settings.aws.interruptionQueue"
     value = aws_sqs_queue.karpenter_interruption.name
   }
 
