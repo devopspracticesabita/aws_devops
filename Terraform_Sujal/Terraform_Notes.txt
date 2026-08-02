@@ -12,6 +12,82 @@ kubectl get ec2nodeclass
 kubectl get nodepool
 kubectl get nodeclaim
 kubectl get nodes
+kubectl rollout restart deployment karpenter -n karpenter # To start fargate pod in new Version.
+
+1. Cluster-Wide Backup
+
+kubectl get all -A -o yaml > cluster-all.yaml
+
+2. Karpenter Backup (Most Important)
+
+NodePools :::
+
+kubectl get nodepool -o yaml > nodepool-backup.yaml
+
+EC2NodeClasses :::
+
+kubectl get ec2nodeclass -o yaml > ec2nodeclass-backup.yaml
+
+NodeClaims :::
+
+kubectl get nodeclaim -o yaml > nodeclaim-backup.yaml
+
+3. Karpenter Configuration
+
+helm get values karpenter -n karpenter > karpenter-values.yaml
+helm get manifest karpenter -n karpenter > karpenter-manifest.yaml
+
+4. Helm Releases
+
+helm list -A > helm-releases.txt
+
+Check history before upgrade:
+
+helm history karpenter -n karpenter
+helm history argocd -n argocd
+helm history cert-manager -n cert-manager
+
+5. CRD Backup
+
+kubectl get crd nodepools.karpenter.sh -o yaml > crd-nodepool.yaml
+kubectl get crd nodeclaims.karpenter.sh -o yaml > crd-nodeclaim.yaml
+kubectl get crd ec2nodeclasses.karpenter.k8s.aws -o yaml > crd-ec2nodeclass.yaml
+
+All CRDs:
+
+kubectl get crd -o yaml > all-crds.yaml
+
+6. EKS Addons Backup
+
+aws eks list-addons --cluster-name retail-dev-eksdemodev
+aws eks describe-addon --cluster-name retail-dev-eksdemodev --addon-name vpc-cni
+
+Repeat for:
+
+vpc-cni
+coredns
+kube-proxy
+efs-csi-driver
+
+7. Terraform State Backup
+
+terraform state pull > terraform-state-backup.json
+
+Very important before::
+
+EKS Upgrade
+Karpenter Upgrade
+Terraform Refactoring
+
+8. Current Node Information
+
+kubectl get nodes -o wide > nodes.txt
+kubectl get nodeclaim -o yaml > live-nodeclaims.yaml
+
+9. Current Pod Status
+
+kubectl get pods -A -o wide > pods-before-upgrade.txt
+
 
 ******** MANAGEMENT PROFILE ********
 
